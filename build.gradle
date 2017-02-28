@@ -1,0 +1,64 @@
+apply plugin: 'java'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+repositories {
+    mavenCentral()
+    maven { url "http://repo.spring.io/snapshot" }
+}
+
+dependencies {
+    compile("org.jsoup:jsoup:1.10.2")
+    compile("joda-time:joda-time:2.2")
+    compile("com.google.code.maven-play-plugin.org.allcolor.yahp:yahp-internal:1.3")
+}
+
+jar {
+  manifest {
+    attributes(
+      'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+      'Main-Class': 'vn.hamalaja.mvc.Application'
+    )
+  }
+}
+
+
+task copySrc(type: Copy){
+    from "src"
+	exclude "main/java"
+	exclude "test"
+    into "$buildDir/libs/src"
+}
+
+task copyCmd(type: Copy) {
+    from "run.bat"
+    into "$buildDir/libs"
+}
+
+task copyProcfile(type: Copy) {
+    from "Procfile.txt"
+    into "$buildDir/libs"
+}
+
+task copyConfig(type: Copy) {
+    from "configs"
+    into "$buildDir/libs/configs"
+}
+
+task copyLibs(type: Copy){
+	from configurations.runtime
+    into "$buildDir/libs/lib"
+}
+
+//build đầy đủ
+task fatBuild(type: Copy, dependsOn: ["jar", "copySrc", "copyConfig", "copyCmd","copyProcfile", "copyLibs"]) {
+	description 'Build jar, copy web source, config and run bath file'
+}
+
+//build bản nhẹ chỉ có src
+task("litBuild", type: Copy, dependsOn: "copySrc") {
+	description 'Copy web source'
+    from configurations.runtime
+    into "$buildDir/libs/lib"
+}
