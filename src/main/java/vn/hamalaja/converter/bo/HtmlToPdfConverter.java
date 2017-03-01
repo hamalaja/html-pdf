@@ -27,7 +27,7 @@ public class HtmlToPdfConverter {
 
 	public static void doConvert(String fileName, String htmlFile) {
 		try {
-			File input = new File(root, "templates/index.html");
+			File input = new File(root, htmlFile);
 			Document doc = Jsoup.parse(input, "UTF-8");
 			doc.select("div.content").html("hello");
 
